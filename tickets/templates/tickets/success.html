@@ -1,0 +1,105 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Ticket Submitted - Navera CMMS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background: #20306F;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .success-card {
+            background: #ffffff;
+            width: 100%;
+            max-width: 500px;
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.25);
+        }
+
+        .success-icon {
+            font-size: 60px;
+            color: #28a745;
+        }
+
+        .brand-title {
+            font-weight: 800;
+            font-size: 22px;
+            color: #20306F;
+            margin-top: 15px;
+        }
+
+        .message-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin-top: 20px;
+            color: #20306F;
+        }
+
+        .message-text {
+            color: #64748b;
+            margin-top: 10px;
+            font-size: 15px;
+        }
+
+        .btn-back {
+            margin-top: 30px;
+            background: #d90429;
+            color: #ffffff;
+            padding: 12px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            border: none;
+            width: 100%;
+            transition: 0.2s ease;
+            box-shadow: 0 8px 20px rgba(217, 4, 41, 0.35);
+        }
+
+        .btn-back:hover {
+            background: #b00321;
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+<body>
+
+<div class="success-card">
+
+    <div class="success-icon">
+        ✔
+    </div>
+
+    <div class="brand-title">
+        Navera CMMS
+    </div>
+
+    <div class="message-title">
+        Ticket Successfully Submitted
+    </div>
+
+    <div class="message-text">
+        Your complaint has been recorded successfully.<br>
+        Our maintenance team will review and take necessary action shortly.
+    </div>
+
+    <a href="{% url 'manual_complaint' %}">
+        <button class="btn-back">
+            Submit Another Ticket
+        </button>
+    </a>
+
+</div>
+
+</body>
+</html>

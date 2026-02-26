@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Dashboard - {{ role }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        :root {
+            --primary-color: #20306F;
+            --secondary-color: #d90429;
+        }
+
+        body {
+            background-color: #f4f6fb;
+            font-family: 'Segoe UI', sans-serif;
+        }
+
+        /* 🔵 Top Navbar */
+        .topbar {
+            background: var(--primary-color);
+            padding: 20px 40px;
+            color: white;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .topbar h2 {
+            margin: 0;
+            font-weight: 700;
+        }
+
+        /* Main Container */
+        .dashboard-container {
+            padding: 40px;
+        }
+
+        /* Card Styling */
+        .custom-card {
+            border-radius: 15px;
+            border: none;
+            overflow: hidden;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.05);
+            border-left: 5px solid var(--secondary-color);
+        }
+
+        /* Table Header */
+        thead {
+            background-color: #e9ecf5;
+            font-weight: 600;
+        }
+
+        table tbody tr:hover {
+            background-color: #f1f3fa;
+            transition: 0.2s ease;
+        }
+
+        /* Badge Styling */
+        .badge.bg-danger {
+            background-color: var(--secondary-color) !important;
+        }
+
+        .badge.bg-info {
+            background-color: var(--primary-color) !important;
+        }
+
+        .badge.bg-secondary {
+            background-color: white !important;
+            color: var(--primary-color) !important;
+            font-weight: 600;
+        }
+
+        /* Buttons */
+        .btn-danger {
+            background-color: var(--secondary-color) !important;
+            border: none;
+        }
+
+        .btn-danger:hover {
+            opacity: 0.85;
+        }
+
+        .btn-outline-danger {
+            border-color: white;
+            color: white;
+        }
+
+        .btn-outline-danger:hover {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+        }
+
+        select.form-select {
+            border-radius: 8px;
+            font-weight: 500;
+        }
+
+        /* Prevent text overflow in the description column */
+        .desc-cell {
+            max-width: 300px; /* Limits how wide the column can get */
+            word-wrap: break-word; /* Forces long words to break */
+            word-break: break-word;
+            white-space: normal;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="topbar d-flex justify-content-between align-items-center">
+        <h2>Navera CMMS Dashboard</h2>
+
+        <div>
+            <span class="badge bg-secondary me-3">
+                {{ role }}
+            </span>
+
+            <form method="POST" action="{% url 'logout' %}" class="d-inline">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-danger btn-sm">
+                    Logout
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="dashboard-container">
+        <div class="card custom-card">
+            <table class="table table-hover mb-0 align-middle">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Location</th>
+                        <th>Issue</th>
+                        <th class="desc-cell">Description</th> 
+                        <th>Photo</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        {% if role == 'Admin' %}<th>Actions</th>{% endif %}
+                    </tr>
+                </thead>
+
+                <tbody>
+                    {% for ticket in tickets %}
+                    <tr>
+                        <td><strong>#{{ ticket.id }}</strong></td>
+
+                        <td>
+                            {{ ticket.location.name }} <br>
+                            <small class="text-muted">
+                                {{ ticket.location.site.name }}
+                            </small>
+                        </td>
+
+                        <td>{{ ticket.category }}</td>
+                        
+                        <td class="desc-cell">{{ ticket.description }}</td>
+
+                        <td>
+                            {% if ticket.photo %}
+                                <a href="{{ ticket.photo.url }}" target="_blank">
+                                    <img src="{{ ticket.photo.url }}"
+                                         style="width:45px; height:45px; object-fit:cover; border-radius:8px; border:1px solid #e2e8f0; transition:0.2s;"
+                                         onmouseover="this.style.transform='scale(1.1)'"
+                                         onmouseout="this.style.transform='scale(1)'">
+                                </a>
+                            {% else %}
+                                <span class="badge bg-light text-secondary">None</span>
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <span class="badge 
+                                {% if ticket.priority == 'High' %}
+                                    bg-danger
+                                {% elif ticket.priority == 'Medium' %}
+                                    bg-warning text-dark
+                                {% else %}
+                                    bg-info
+                                {% endif %}">
+                                {{ ticket.priority }}
+                            </span>
+                        </td>
+
+                        <td>
+                            {% if role == 'Admin' or role == 'Manager' %}
+                            <form method="POST" action="{% url 'update_ticket' ticket.id %}">
+                                {% csrf_token %}
+                                <select name="status"
+                                        onchange="this.form.submit()"
+                                        class="form-select form-select-sm"
+                                        style="width:130px;">
+                                    <option value="Open" {% if ticket.status == 'Open' %}selected{% endif %}>Open</option>
+                                    <option value="In Progress" {% if ticket.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                                    <option value="Closed" {% if ticket.status == 'Closed' %}selected{% endif %}>Closed</option>
+                                </select>
+                            </form>
+                            {% else %}
+                                <strong>{{ ticket.status }}</strong>
+                            {% endif %}
+                        </td>
+
+                        {% if role == 'Admin' %}
+                        <td>
+                            <form method="POST" action="{% url 'delete_ticket' ticket.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    Delete
+                                </button>
+                            </form>
+                        </td>
+                        {% endif %}
+                    </tr>
+
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center p-5 text-muted">
+                            No tickets found! 🎉
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>
